@@ -24,4 +24,8 @@ html {
     @media (min-width: $breakpoint-docs-nav-medium) {
         --header-nav-height: 64px;
     }
+
+    &#{$selector-darkmode} {
+        scrollbar-color: var(--color-util-gray-300) var(--color-util-gray-100);
+    }
 }
