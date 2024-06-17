@@ -23,7 +23,10 @@ export class ParamModel {
 
     hasValue = (store: Store) => store.get(this.valueAtom) != null;
 
-    static for(property: string) {
+    static for(property: string | ParamModel) {
+        if (property instanceof ParamModel) {
+            return property;
+        }
         return paramModels[property] || (paramModels[property] = new ParamModel(property));
     }
 }
