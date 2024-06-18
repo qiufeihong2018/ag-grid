@@ -16,7 +16,7 @@ export const AdvancedParamSelector = memoWithSameType(() => {
     const advancedParamIsEnabled = useAdvancedParamIsEnabled();
     const setAdvancedParamEnabled = useSetAdvancedParamEnabled();
 
-    const lastArrowNavTime = useRef(0);
+    const lastArrowKeyPressTime = useRef(0);
 
     const { isOpen, getMenuProps, getInputProps, getItemProps, inputValue } = useCombobox({
         onInputValueChange({ inputValue }) {
@@ -35,12 +35,11 @@ export const AdvancedParamSelector = memoWithSameType(() => {
             setAdvancedParamEnabled(selectedItem, !enabled);
         },
         onHighlightedIndexChange: ({ highlightedIndex }) => {
-            const wasKeyboardNavigation = Date.now() - lastArrowNavTime.current < 100;
+            const wasKeyboardNavigation = Date.now() - lastArrowKeyPressTime.current < 100;
             if (!wasKeyboardNavigation) return;
             const popup = refs.floating.current;
             const item = popup?.querySelector(`[data-param-index="${highlightedIndex}"]`);
             if (!popup || !item) return;
-            // setTimeout(() => {
             const popupRect = popup.getBoundingClientRect();
             const itemRect = item.getBoundingClientRect();
             if (itemRect.top < popupRect.top) {
@@ -48,7 +47,6 @@ export const AdvancedParamSelector = memoWithSameType(() => {
             } else if (itemRect.bottom > popupRect.bottom) {
                 item.scrollIntoView({ behavior: 'smooth', block: 'end' });
             }
-            // }, 1000);
         },
 
         stateReducer: (state, actionAndChanges) => {
@@ -56,7 +54,7 @@ export const AdvancedParamSelector = memoWithSameType(() => {
             switch (type) {
                 case useCombobox.stateChangeTypes.InputKeyDownArrowDown:
                 case useCombobox.stateChangeTypes.InputKeyDownArrowUp:
-                    lastArrowNavTime.current = Date.now();
+                    lastArrowKeyPressTime.current = Date.now();
                     return changes;
                 case useCombobox.stateChangeTypes.InputKeyDownEnter:
                 case useCombobox.stateChangeTypes.ItemClick:
