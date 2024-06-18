@@ -6,7 +6,7 @@
     overflow: hidden;
     background-color: var(--ag-header-background-color);
     color: var(--ag-header-text-color);
-    border-bottom: var(--ag-header-border);
+    border-bottom: var(--ag-header-row-border);
     font-size: var(--ag-header-font-size);
     font-family: var(--ag-header-font-family);
     font-weight: var(--ag-header-font-weight);
@@ -22,7 +22,7 @@
 .ag-header-row:not(:first-child) {
     .ag-header-cell:not(.ag-header-span-height.ag-header-span-total),
     .ag-header-group-cell.ag-header-group-cell-with-group {
-        border-top: var(--ag-header-border);
+        border-top: var(--ag-header-row-border);
     }
 }
 

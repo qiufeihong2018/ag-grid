@@ -8,6 +8,7 @@ export type Part<T extends string = string> = {
     dependencies: () => Part[];
     // TODO make this Partial<ParamTypes>
     defaults: { [K in T]: K extends Param ? ParamTypes[K] : any };
+    additionalParamNames?: string[];
     css: Array<string | (() => string)>;
 };
 

@@ -1,5 +1,8 @@
+import { logErrorMessageOnce, paramToVariableName } from '@components/theme-builder/model/utils';
 import styled from '@emotion/styled';
+import { useEffect } from 'react';
 
+import type { Theme } from '../../../../../../../community-modules/theming/src/Theme';
 import { useRenderedTheme } from '../../model/rendered-theme';
 import { EditorPanel } from '../editors/EditorPanel';
 import { GridConfigDropdownButton } from '../grid-config/GridConfigDropdown';
@@ -8,7 +11,12 @@ import { DownloadThemeButton } from './DownloadThemeButton';
 import { GridPreview } from './GridPreview';
 
 export const RootContainer = () => {
-    useRenderedTheme();
+    const theme = useRenderedTheme();
+
+    useEffect(() => {
+        warnOfUnknownCssVariables(theme);
+    }, [theme]);
+
     return (
         <Container>
             <Menu>
@@ -97,3 +105,14 @@ const Main = styled('div')`
     position: relative;
     gap: 20px;
 `;
+
+function warnOfUnknownCssVariables(theme: Theme) {
+    const allowedVariables = new Set(Object.keys(theme.getParams()).map(paramToVariableName));
+    allowedVariables.add('--ag-line-height');
+    allowedVariables.add('--ag-indentation-level');
+    for (const [, variable] of theme.getCSS().matchAll(/var\((--ag-[\w-]+)[^)]*\)/g)) {
+        if (!allowedVariables.has(variable) && !/^--ag-(internal|inherited)-/.test(variable)) {
+            logErrorMessageOnce(`${variable} does not match a theme param`);
+        }
+    }
+}

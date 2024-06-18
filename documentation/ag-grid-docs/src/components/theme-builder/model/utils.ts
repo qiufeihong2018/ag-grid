@@ -51,3 +51,6 @@ export const convertProductionUrlsForStaging = (url: string) => {
 };
 
 export const stripFloatingPointErrors = (value: number) => value.toFixed(10).replace(/\.?0+$/, '');
+
+export const paramToVariableName = (param: string) => `--ag-${kebabCase(param)}`;
+const kebabCase = (str: string) => str.replace(/[A-Z]/g, (m) => `-${m}`).toLowerCase();

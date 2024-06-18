@@ -7,7 +7,6 @@ export const generateDocsFile = async () => {
     const mainExports = await import('../../src/main');
     const { allParts } = await import('../../src/parts/parts');
     const { getParamDocs, getParamDocsKeys } = await import('../../src/metadata/docs');
-    const { getPartParams } = await import('../../src/theme-types');
 
     const exportedParts = new Set<Part>();
     for (const [exportName, exportValue] of Object.entries(mainExports)) {
@@ -31,13 +30,13 @@ export const generateDocsFile = async () => {
             throw fatalError(`Part ${part.partId}/${part.variantId} is not exported`);
         }
         try {
-            getPartParams(part).forEach(getParamType);
+            part.additionalParamNames?.forEach(getParamType);
         } catch (e: any) {
             throw fatalError(`Error in part ${part.partId}/${part.variantId}: ${e.message}`);
         }
     }
 
-    const allParams = Array.from(new Set<string>(allParts.flatMap((p) => getPartParams(p)))).sort();
+    const allParams = Array.from(new Set<string>(allParts.flatMap((p) => p.additionalParamNames || []))).sort();
 
     const allParamsSet = new Set(allParams);
     const superfluousParamDocs = getParamDocsKeys().filter((p) => !allParamsSet.has(p));
