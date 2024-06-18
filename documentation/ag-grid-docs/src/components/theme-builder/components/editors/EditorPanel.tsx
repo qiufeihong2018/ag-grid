@@ -170,11 +170,11 @@ const AccordionContent = styled(Accordion.Content)`
     padding-right: 10px;
 
     &[data-state='open'] {
-        animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards;
+        animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
     }
 
     &[data-state='closed'] {
-        animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards;
+        animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
     }
 
     @keyframes slideDown {

@@ -3,7 +3,7 @@ import { useAdvancedParamIsEnabled, useSetAdvancedParamEnabled } from '@componen
 import styled from '@emotion/styled';
 import { FloatingPortal, autoUpdate, offset, shift, useFloating } from '@floating-ui/react';
 import { useCombobox } from 'downshift';
-import { Fragment, type ReactElement, useState } from 'react';
+import { Fragment, type ReactElement, useRef, useState } from 'react';
 
 import { memoWithSameType } from '../component-utils';
 import { Card } from '../general/Card';
@@ -15,6 +15,8 @@ export const AdvancedParamSelector = memoWithSameType(() => {
 
     const advancedParamIsEnabled = useAdvancedParamIsEnabled();
     const setAdvancedParamEnabled = useSetAdvancedParamEnabled();
+
+    const lastArrowNavTime = useRef(0);
 
     const { isOpen, getMenuProps, getInputProps, getItemProps, inputValue } = useCombobox({
         onInputValueChange({ inputValue }) {
@@ -32,9 +34,30 @@ export const AdvancedParamSelector = memoWithSameType(() => {
             const enabled = advancedParamIsEnabled(selectedItem);
             setAdvancedParamEnabled(selectedItem, !enabled);
         },
+        onHighlightedIndexChange: ({ highlightedIndex }) => {
+            const wasKeyboardNavigation = Date.now() - lastArrowNavTime.current < 100;
+            if (!wasKeyboardNavigation) return;
+            const popup = refs.floating.current;
+            const item = popup?.querySelector(`[data-param-index="${highlightedIndex}"]`);
+            if (!popup || !item) return;
+            // setTimeout(() => {
+            const popupRect = popup.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            if (itemRect.top < popupRect.top) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (itemRect.bottom > popupRect.bottom) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+            // }, 1000);
+        },
+
         stateReducer: (state, actionAndChanges) => {
             const { changes, type } = actionAndChanges;
             switch (type) {
+                case useCombobox.stateChangeTypes.InputKeyDownArrowDown:
+                case useCombobox.stateChangeTypes.InputKeyDownArrowUp:
+                    lastArrowNavTime.current = Date.now();
+                    return changes;
                 case useCombobox.stateChangeTypes.InputKeyDownEnter:
                 case useCombobox.stateChangeTypes.ItemClick:
                     return {
@@ -103,7 +126,7 @@ export const AdvancedParamSelector = memoWithSameType(() => {
                                         {...getItemProps({ item: param, index })}
                                     >
                                         <EnabledMark type="checkbox" checked={enabled} readOnly />
-                                        <ParamContent>
+                                        <ParamContent data-param-index={index}>
                                             <ParamLabel>
                                                 <EmphasiseMatches matcher={filterWordHighlighter} text={param.label} />
                                             </ParamLabel>
@@ -125,8 +148,6 @@ export const AdvancedParamSelector = memoWithSameType(() => {
         </>
     );
 });
-
-const Container = styled('div')``;
 
 const DropdownArea = styled(Card)`
     .param-menu-content {
